@@ -1,0 +1,81 @@
+ * Serving Flask app 'app'
+ * Debug mode: on
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on all addresses (0.0.0.0)
+ * Running on http://127.0.0.1:54349
+ * Running on http://172.19.0.1:54349
+Press CTRL+C to quit
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger PIN: 765-121-228
+127.0.0.1 - - [06/Oct/2026 14:02:37] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:02:37] "GET /dashboard HTTP/1.1" 302 -
+127.0.0.1 - - [06/Oct/2026 14:03:12] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:03:12] "GET /static/css/style.css?v=1791284084 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:03:12] "GET /static/logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:03:12] "GET /static/script.js?v=1791284084 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:03:12] "GET /static/favicon.png HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:15:32] "GET /register HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:15:32] "GET /static/css/style.css?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:15:32] "GET /static/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:15:32] "GET /static/script.js?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:22:39] "POST /register HTTP/1.1" 302 -
+127.0.0.1 - - [06/Oct/2026 14:22:39] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:22:39] "GET /static/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:22:39] "GET /static/css/style.css?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:22:39] "GET /static/script.js?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:31:40] "GET /dashboard HTTP/1.1" 302 -
+127.0.0.1 - - [06/Oct/2026 14:31:40] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:31:40] "GET /static/css/style.css?v=1791284084 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:31:40] "GET /static/script.js?v=1791284084 HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:31:40] "GET /static/logo.png HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:31:40] "GET /static/favicon.png HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:31:48] "GET /dashboard HTTP/1.1" 302 -
+127.0.0.1 - - [06/Oct/2026 14:31:48] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:31:48] "GET /static/css/style.css?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:31:48] "GET /static/script.js?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:31:48] "GET /static/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:31:51] "POST /trial HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:31:51] "GET /dashboard HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:31:51] "GET /static/css/style.css?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:31:51] "GET /static/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:31:51] "GET /static/script.js?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:31:54] "GET /auth/telegram HTTP/1.1" 302 -
+127.0.0.1 - - [06/Oct/2026 14:32:02] "GET /dashboard HTTP/1.1" 302 -
+127.0.0.1 - - [06/Oct/2026 14:32:02] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:32:02] "GET /static/css/style.css?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:32:02] "GET /static/script.js?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:32:02] "GET /static/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:32:04] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:32:04] "GET /static/css/style.css?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:32:04] "GET /static/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:32:04] "GET /static/script.js?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:36:11] "GET /topup HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:36:11] "GET /static/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:36:11] "GET /static/css/style.css?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:36:11] "GET /static/script.js?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:38:46] "GET /topup HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:38:46] "GET /static/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:38:46] "GET /static/css/style.css?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:38:46] "GET /static/script.js?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:38:46] "GET /static/favicon.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:44:05] "GET /topup HTTP/1.1" 302 -
+127.0.0.1 - - [06/Oct/2026 14:44:05] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 14:44:05] "GET /static/css/style.css?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:44:05] "GET /static/script.js?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:44:05] "GET /static/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 14:44:07] "GET /auth/telegram HTTP/1.1" 302 -
+127.0.0.1 - - [06/Oct/2026 15:42:24] "GET /topup HTTP/1.1" 302 -
+127.0.0.1 - - [06/Oct/2026 15:42:24] "GET /login HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 15:42:24] "GET /static/css/style.css?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 15:42:24] "GET /static/script.js?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 15:42:24] "GET /static/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 15:42:27] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 15:42:27] "GET /static/css/style.css?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 15:42:27] "GET /static/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 15:42:27] "GET /static/script.js?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 15:42:31] "GET /register HTTP/1.1" 200 -
+127.0.0.1 - - [06/Oct/2026 15:42:31] "GET /static/css/style.css?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 15:42:31] "GET /static/logo.png HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 15:42:31] "GET /static/script.js?v=1791284084 HTTP/1.1" 304 -
+127.0.0.1 - - [06/Oct/2026 15:42:33] "GET /auth/telegram HTTP/1.1" 302 -
