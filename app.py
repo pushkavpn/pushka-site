@@ -37,11 +37,11 @@ DB_PATH = os.environ.get("DATABASE_PATH", "/tmp/pushka.db")
 SECRET_KEY = os.environ.get("SECRET_KEY", "change-me-in-railway-env")
 SITE_URL = os.environ.get("SITE_URL", "https://your-site.railway.app").rstrip("/")
 
-BOT_TOKEN = os.environ.get("BOT_TOKEN", "8867577154:AAHxbdS7xa1-NV2IqQcFf_Ls3oPP5OKXpSA")
+BOT_TOKEN = os.environ.get("BOT_TOKEN")
 BOT_USERNAME = os.environ.get("BOT_USERNAME", "pushkavpn_bot").lstrip("@")
 
 VPS_API_URL = os.environ.get("VPS_API_URL", "http://127.0.0.1:8080").rstrip("/")
-VPS_SECRET = os.environ.get("VPS_SECRET", "pushka_secret_2026")
+VPS_SECRET = os.environ.get("VPS_SECRET")
 LINK_SECRET = os.environ.get("LINK_SECRET", VPS_SECRET)
 
 # Telegram Login (OIDC) — стандартная авторизация через oauth.telegram.org.
