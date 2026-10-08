@@ -5,6 +5,7 @@
 
 import base64
 import hashlib
+import hmac
 import os
 import re
 import secrets
@@ -44,15 +45,8 @@ VPS_API_URL = os.environ.get("VPS_API_URL", "http://127.0.0.1:8080").rstrip("/")
 VPS_SECRET = os.environ.get("VPS_SECRET")
 LINK_SECRET = os.environ.get("LINK_SECRET", VPS_SECRET)
 
-# Telegram Login (OIDC) — стандартная авторизация через oauth.telegram.org.
-# Client ID и Client Secret выдаёт @BotFather → Login Widget.
-TELEGRAM_CLIENT_ID = os.environ.get("TELEGRAM_CLIENT_ID", "").strip()
-TELEGRAM_CLIENT_SECRET = os.environ.get("TELEGRAM_CLIENT_SECRET", "").strip()
-
-TG_AUTH_URL = "https://oauth.telegram.org/auth"
-TG_TOKEN_URL = "https://oauth.telegram.org/token"
-TG_JWKS_URL = "https://oauth.telegram.org/.well-known/jwks.json"
-TG_ISSUER = "https://oauth.telegram.org"
+# Telegram Login Widget — классическая авторизация по токену бота.
+# Client ID и Client Secret не нужны, всё работает через BOT_TOKEN.
 
 # Чат «Служебные уведомления»: уведомление о новой регистрации через Telegram.
 # NOTIFY_THREAD_ID — для форум-чатов (идентификатор темы), опционально.
@@ -624,71 +618,52 @@ def _notify(text: str) -> None:
         app.logger.warning("notify error: %s", exc)
 
 
-def _tg_exchange_and_verify(code: str, verifier: str) -> dict:
-    """Меняет код на id_token и проверяет подпись JWT (JWKS от oauth.telegram.org)."""
-    resp = requests.post(
-        TG_TOKEN_URL,
-        data={
-            "grant_type": "authorization_code",
-            "code": code,
-            "redirect_uri": _tg_redirect_uri(),
-            "client_id": TELEGRAM_CLIENT_ID,
-            "code_verifier": verifier,
-        },
-        auth=(TELEGRAM_CLIENT_ID, TELEGRAM_CLIENT_SECRET),
-        timeout=20,
-    )
-    if resp.status_code != 200:
-        raise RuntimeError(f"token endpoint HTTP {resp.status_code}")
-    id_token = (resp.json() or {}).get("id_token")
-    if not id_token:
-        raise RuntimeError("id_token отсутствует в ответе")
+def check_telegram_auth(data: dict) -> bool:
+    """Проверка подписи Telegram Login Widget (HMAC-SHA256)."""
+    if not BOT_TOKEN:
+        return False
+    check_hash = data.pop("hash", None)
+    if not check_hash:
+        return False
+    data_check_string = "\n".join(f"{k}={v}" for k, v in sorted(data.items()))
+    secret_key = hashlib.sha256(BOT_TOKEN.encode()).digest()
+    computed_hash = hmac.new(
+        secret_key, data_check_string.encode(), hashlib.sha256
+    ).hexdigest()
+    return hmac.compare_digest(computed_hash, check_hash)
 
-    jwks = jwt.PyJWKClient(TG_JWKS_URL, cache_keys=True)
-    signing_key = jwks.get_signing_key_from_jwt(id_token)
-    return jwt.decode(
-        id_token,
-        signing_key.key,
-        algorithms=["RS256", "ES256"],
-        audience=str(TELEGRAM_CLIENT_ID),
-        issuer=TG_ISSUER,
-        options={"require": ["exp", "iat", "sub"]},
-    )
+@app.get("/auth/telegram/callback")
+def tg_callback():
+    """Приём данных от Telegram Login Widget."""
+    data = request.args.to_dict()
+    if not check_telegram_auth(data):
+        return redirect(url_for("login", error="telegram"))
 
-
-def _tg_login_or_register(claims: dict):
-    """Вход по telegram_id; при отсутствии аккаунта — регистрация.
-
-    Имя, username и фото профиля берутся из Telegram.
-    """
-    db = get_db()
-    tg_id = str(claims.get("sub") or "")
-    username = str(claims.get("preferred_username") or "")
-    name = str(claims.get("name") or "").strip()
-    photo = str(claims.get("picture") or "")
+    tg_id = str(data.get("id") or "")
+    username = data.get("username", "")
+    first_name = data.get("first_name", "")
+    photo_url = data.get("photo_url", "")
     if not tg_id:
-        raise RuntimeError("в id_token нет sub")
+        return redirect(url_for("login", error="telegram"))
 
-    user = db.execute(
-        "SELECT * FROM users WHERE telegram_id = ?", (tg_id,)
-    ).fetchone()
+    db = get_db()
+    user = db.execute("SELECT * FROM users WHERE telegram_id = ?", (tg_id,)).fetchone()
     created = False
 
     if user is None:
         session_user = get_user(session.get("user_id"))
         if session_user is not None and not session_user["telegram_id"]:
-            # Уже открыт аккаунт по почте — привязываем Telegram к нему
             db.execute(
                 "UPDATE users SET telegram_id = ?, telegram_username = ?, "
                 "telegram_name = ?, telegram_photo = ? WHERE id = ?",
-                (tg_id, username, name, photo, session_user["id"]),
+                (tg_id, username, first_name, photo_url, session_user["id"]),
             )
             user = get_user(session_user["id"])
         else:
             cur = db.execute(
                 "INSERT INTO users (telegram_id, telegram_username, telegram_name, "
                 "telegram_photo, created_at) VALUES (?, ?, ?, ?, ?)",
-                (tg_id, username, name, photo, now_iso()),
+                (tg_id, username, first_name, photo_url, now_iso()),
             )
             user = get_user(cur.lastrowid)
             created = True
@@ -696,65 +671,18 @@ def _tg_login_or_register(claims: dict):
         db.execute(
             "UPDATE users SET telegram_username = ?, telegram_name = ?, "
             "telegram_photo = ? WHERE id = ?",
-            (username, name, photo, user["id"]),
+            (username, first_name, photo_url, user["id"]),
         )
         user = get_user(user["id"])
 
     db.commit()
-    return user, created
-
-
-@app.get("/auth/telegram")
-def tg_oauth():
-    """Кнопка «Войти через Telegram»: редирект на oauth.telegram.org."""
-    if not TELEGRAM_CLIENT_ID or not TELEGRAM_CLIENT_SECRET:
-        return redirect(url_for("login", error="tg_unavailable"))
-    state = secrets.token_urlsafe(18)
-    verifier = secrets.token_urlsafe(48)
-    session["tg_state"] = state
-    session["tg_verifier"] = verifier
-    params = urlencode(
-        {
-            "client_id": TELEGRAM_CLIENT_ID,
-            "redirect_uri": _tg_redirect_uri(),
-            "response_type": "code",
-            "scope": "openid profile",
-            "state": state,
-            "code_challenge": _pkce_challenge(verifier),
-            "code_challenge_method": "S256",
-            "lang": "ru",
-        }
-    )
-    return redirect(f"{TG_AUTH_URL}?{params}")
-
-
-@app.get("/auth/telegram/callback")
-def tg_oauth_callback():
-    """Приём кода от oauth.telegram.org: вход или автоматическая регистрация."""
-    if request.args.get("error") or not request.args.get("code"):
-        return redirect(url_for("login", error="telegram"))
-    if not request.args.get("state") or request.args.get("state") != session.pop(
-        "tg_state", None
-    ):
-        return redirect(url_for("login", error="telegram"))
-    verifier = session.pop("tg_verifier", None)
-    if not verifier:
-        return redirect(url_for("login", error="telegram"))
-
-    try:
-        claims = _tg_exchange_and_verify(request.args["code"], verifier)
-        user, created = _tg_login_or_register(claims)
-    except Exception as exc:  # noqa: BLE001
-        app.logger.warning("telegram oauth error: %s", exc)
-        return redirect(url_for("login", error="telegram"))
-
     login_user(user)
     if created:
         _notify(
             "🔔 Новая регистрация через Telegram\n"
-            f"Имя: {claims.get('name') or '—'}\n"
-            f"Username: @{claims.get('preferred_username') or '—'}\n"
-            f"Telegram ID: {claims.get('sub')}\n"
+            f"Имя: {first_name or '—'}\n"
+            f"Username: @{username or '—'}\n"
+            f"Telegram ID: {tg_id}\n"
             f"ID на сайте: #{user['id']}"
         )
     return redirect(url_for("dashboard"))
