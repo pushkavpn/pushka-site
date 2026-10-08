@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Вход — PushkaVPN{% endblock %}
+
+{% block content %}
+<section class="auth-wrap">
+  <div class="auth-card glass">
+    <div class="auth-head">
+      <img class="logo-mark" src="{{ url_for('static', filename='img/logo.png') }}" alt="PushkaVPN">
+      <h1>Вход</h1>
+      <p class="muted">Почта или Telegram</p>
+    </div>
+
+    {% if error == 'telegram' %}
+      <div hidden data-toast="Не удалось проверить вход через Telegram. Попробуйте ещё раз."></div>
+    {% elif error == 'tg_unavailable' %}
+      <div hidden data-toast="Вход через Telegram временно недоступен."></div>
+    {% elif error %}
+      <div hidden data-toast="{{ error }}"></div>
+    {% endif %}
+
+    <div class="social">
+      <a class="btn btn-telegram btn-block" href="{{ url_for('tg_oauth') }}">Войти через Telegram</a>
+    </div>
+
+    <div class="divider"><span>или по почте</span></div>
+
+    <form method="post" class="stack">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email"
+             value="{{ request.form.get('email', '') }}" required autofocus>
+
+      <label for="password">Пароль</label>
+      <input id="password" name="password" type="password" required>
+
+      <button class="btn btn-gradient btn-block" type="submit">Войти</button>
+    </form>
+
+    <p class="auth-switch">Нет аккаунта? <a href="{{ url_for('register') }}">Зарегистрироваться</a></p>
+  </div>
+</section>
+{% endblock %}

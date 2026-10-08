@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}PushkaVPN — лучший VPN{% endblock %}
+
+{% block content %}
+<section class="hero hero-new">
+  <span class="halloween-badge">Осенний Хэллоуин</span>
+  <h1 class="hero-title">Лучший VPN — <span class="grad-text">PushkaVPN</span></h1>
+  <p class="lead">Быстрый интернет без рекламы и лишних ограничений. Регистрация за минуту — дальше личный кабинет.</p>
+  <div class="hero-actions">
+    {% if current_user %}
+      <a class="btn btn-gradient btn-lg" href="{{ url_for('dashboard') }}">Открыть кабинет</a>
+    {% else %}
+      <a class="btn btn-gradient btn-lg" href="{{ url_for('register') }}">Начать бесплатно</a>
+      <a class="btn btn-ghost btn-lg" href="{{ url_for('login') }}">Войти</a>
+    {% endif %}
+  </div>
+</section>
+
+<section class="perk-grid">
+  <article class="perk-card glass">
+    <div class="perk-icon">₽</div>
+    <h3>Дешёвые тарифы</h3>
+    <p>От 10₽</p>
+  </article>
+  <article class="perk-card glass">
+    <div class="perk-icon">⚡</div>
+    <h3>Быстрое подключение</h3>
+    <p>Без рекламы, без ограничений по времени</p>
+  </article>
+  <article class="perk-card glass">
+    <div class="perk-icon">🎁</div>
+    <h3>Бесплатный период</h3>
+    <p>Можете не покупать тариф сразу, можете сначала протестировать</p>
+  </article>
+  <article class="perk-card glass">
+    <div class="perk-icon">🛡</div>
+    <h3>Лёгкое подключение</h3>
+    <p>Доступна полная инструкция, поддержка работает 24/7</p>
+  </article>
+</section>
+
+<section class="brand-strip glass">
+  <div class="brand-strip-logo">
+    <img class="logo-mark" src="{{ url_for('static', filename='img/logo.png') }}" alt="PushkaVPN">
+    <div>
+      <strong>PushkaVPN</strong>
+      <p>Лучший VPN для быстрого интернета и ежедневного пользования.</p>
+    </div>
+  </div>
+</section>
+{% endblock %}

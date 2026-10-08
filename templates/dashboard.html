@@ -1,0 +1,210 @@
+{% extends "base.html" %}
+{% block title %}Кабинет — PushkaVPN{% endblock %}
+{% block body_class %}cabinet{% endblock %}
+
+{% block content %}
+{% if state.suspended %}
+<div hidden data-toast="Баланса не хватило на суточное списание — устройства отключены до пополнения."></div>
+{% endif %}
+
+{% if state.tab == 'home' %}
+<section class="home-grid">
+  <a class="home-tile glass" href="{{ url_for('dashboard_balance') }}">
+    <span class="tile-label">Баланс</span>
+    <span class="tile-value">{{ '%.2f' | format(user.balance) }} ₽</span>
+    <span class="tile-hint">Нажмите, чтобы пополнить</span>
+  </a>
+  <a class="home-tile glass home-tile-cta" href="{{ url_for('dashboard_devices') }}">
+    <span class="tile-label">VPN</span>
+    <span class="tile-value">Подключить устройство</span>
+    <span class="tile-hint">QR-код или ссылка vless://</span>
+  </a>
+</section>
+
+<section class="home-row">
+  <a class="user-chip glass" href="{{ url_for('dashboard_profile') }}">
+    {% if state.avatar %}
+      <img class="avatar" src="{{ state.avatar }}" alt="">
+    {% else %}
+      <span class="avatar avatar-fallback">{{ state.initials }}</span>
+    {% endif %}
+    <span class="user-chip-name">{{ state.name }}</span>
+  </a>
+  <form class="promo-bar glass" id="promo-form">
+    <label for="promo-code">Промокод</label>
+    <input id="promo-code" name="code" type="text" autocomplete="off">
+    <button class="btn btn-gradient btn-sm" type="submit">Применить</button>
+    <p class="promo-hint">Промокод публикуется в Telegram-канале{% if tg_channel_url %} — <a href="{{ tg_channel_url }}" target="_blank" rel="noopener">открыть канал</a>{% endif %}.</p>
+  </form>
+</section>
+
+<section class="brand-strip glass">
+  <div class="brand-strip-logo">
+    <img class="logo-mark" src="{{ url_for('static', filename='img/logo.png') }}" alt="PushkaVPN">
+    <div>
+      <strong>PushkaVPN</strong>
+      <p>Лучший VPN для быстрого интернета и ежедневного пользования.</p>
+    </div>
+  </div>
+</section>
+{% endif %}
+
+{% if state.tab == 'devices' %}
+<section class="card glass">
+  <div class="card-head">
+    <div>
+      <h2>Подключить VPN</h2>
+      <p class="muted">Выберите тариф — получите ссылку vless:// и QR-код.</p>
+    </div>
+    <button class="btn btn-gradient" id="add-device">Подключить новое устройство</button>
+  </div>
+
+  <h3 class="subhead">Ваши устройства</h3>
+  {% if devices %}
+  <div class="table-wrap">
+    <table class="devices">
+      <thead>
+        <tr><th>Название</th><th>Тариф</th><th>Трафик сегодня</th><th>Ссылка</th><th></th></tr>
+      </thead>
+      <tbody>
+        {% for d in devices %}
+        <tr class="{% if d.suspended %}row-suspended{% endif %}">
+          <td>
+            <span class="dot {% if not d.suspended and (d.tariff or state.trial_active) %}on{% endif %}"></span>
+            {{ d.name }}
+            {% if d.suspended %}<span class="tag tag-warn">отключено</span>{% endif %}
+          </td>
+          <td>
+            <select class="tariff-select" data-device="{{ d.id }}">
+              <option value="" {% if not d.tariff %}selected{% endif %}>— без тарифа —</option>
+              {% for key, plan in tariffs.items() %}
+              <option value="{{ key }}" {% if d.tariff == key %}selected{% endif %}>
+                {{ plan.name }} · {{ plan.price }}₽/день
+              </option>
+              {% endfor %}
+            </select>
+          </td>
+          <td class="muted">
+            {{ '%.0f' | format(d.traffic_mb_today) }} МБ
+            {% if d.tariff %}/ {{ tariffs[d.tariff].gb * 1024 }} МБ{% endif %}
+          </td>
+          <td class="link-cell">
+            <code>{{ d.link[:30] }}…</code>
+            <button class="btn btn-glass btn-sm" data-copy="{{ d.link }}">Копировать</button>
+            <button class="btn btn-glass btn-sm" data-qr="{{ d.link }}" data-name="{{ d.name }}">QR</button>
+          </td>
+          <td><button class="btn btn-danger btn-sm" data-del="{{ d.id }}">Удалить</button></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="empty muted">Устройств пока нет — нажмите «Подключить новое устройство».</p>
+  {% endif %}
+</section>
+{% endif %}
+
+{% if state.tab == 'balance' %}
+<section class="balance-grid">
+  <div class="card glass">
+    <h2>Пополнение баланса</h2>
+    <p class="muted">Текущий баланс: <b>{{ '%.2f' | format(user.balance) }} ₽</b></p>
+    <div class="topup-box">
+      <label for="amount">Сумма, ₽ (минимум {{ min_topup }})</label>
+      <input id="amount" type="number" min="{{ min_topup }}" step="10" value="{{ min_topup }}">
+      <p class="muted small">Минимальное пополнение — {{ min_topup }} ₽.</p>
+      <button class="btn btn-gradient btn-block" id="topup">Пополнить</button>
+      <p class="legal-note">
+        Оплачивая, вы принимаете
+        <a href="{{ url_for('privacy') }}">Политику конфиденциальности</a>
+        и <a href="{{ url_for('terms') }}">Пользовательское соглашение</a>.
+      </p>
+    </div>
+  </div>
+
+  <div class="card glass">
+    <h2>Пополнить другу</h2>
+    <form class="stack" id="gift-form">
+      <label for="gift-to">Email, ник или ID</label>
+      <input id="gift-to" name="to" type="text" required>
+      <label for="gift-amount">Сумма, ₽ (минимум {{ min_topup }})</label>
+      <input id="gift-amount" name="amount" type="number" min="{{ min_topup }}" step="10" value="{{ min_topup }}" required>
+      <button class="btn btn-ghost" type="submit">Отправить</button>
+    </form>
+  </div>
+</section>
+
+<section class="card glass">
+  <h2>История платежей</h2>
+  {% if state.payments %}
+  <div class="table-wrap">
+    <table class="devices">
+      <thead>
+        <tr><th>Дата</th><th>Сумма</th><th>Бонус</th><th>Операция</th></tr>
+      </thead>
+      <tbody>
+        {% for p in state.payments %}
+        <tr>
+          <td>{{ p.created_at.replace('T', ' ')[:16] }}</td>
+          <td>+{{ '%.2f' | format(p.amount) }} ₽</td>
+          <td>{% if p.bonus %}+{{ '%.0f' | format(p.bonus) }} ₽{% else %}—{% endif %}</td>
+          <td class="muted">{{ p.tx_id }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="empty muted">Платежей пока нет.</p>
+  {% endif %}
+</section>
+{% endif %}
+
+{% if state.tab == 'profile' %}
+<section class="profile-grid">
+  <div class="card glass profile-card">
+    {% if state.avatar %}
+      <img class="avatar avatar-lg" src="{{ state.avatar }}" alt="">
+    {% else %}
+      <span class="avatar avatar-lg avatar-fallback">{{ state.initials }}</span>
+    {% endif %}
+    <h2>{{ state.name }}</h2>
+    <p class="muted">
+      {% if user.email %}{{ user.email }}{% endif %}
+      {% if user.telegram_username %} · @{{ user.telegram_username }}{% endif %}
+      · ID #{{ user.id }}
+    </p>
+  </div>
+
+  <div class="card glass">
+    <h2>Профиль</h2>
+    <form class="stack" id="profile-form">
+      <label for="nickname">Ник</label>
+      <input id="nickname" name="nickname" type="text" maxlength="40" value="{{ user.nickname or state.name }}">
+      <label for="avatar">Аватар (ссылка)</label>
+      <input id="avatar" name="avatar" type="text" value="{{ user.avatar or '' }}">
+      <label for="avatar-file">Или загрузить файл</label>
+      <input id="avatar-file" type="file" accept="image/*">
+      <button class="btn btn-gradient" type="submit">Сохранить</button>
+    </form>
+  </div>
+
+  <div class="card glass">
+    <h2>Пароль</h2>
+    <form class="stack" id="password-form">
+      {% if user.password_hash %}
+      <label for="current">Текущий пароль</label>
+      <input id="current" name="current" type="password">
+      {% endif %}
+      <label for="new-password">Новый пароль</label>
+      <input id="new-password" name="password" type="password" required>
+      <p class="field-hint">Пароль должен быть не короче 6 символов</p>
+      <label for="new-password2">Повторите пароль</label>
+      <input id="new-password2" name="password2" type="password" required>
+      <button class="btn btn-ghost" type="submit">Сменить пароль</button>
+    </form>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

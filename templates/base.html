@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}PushkaVPN{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+  <meta name="description" content="PushkaVPN — лучший VPN для быстрого интернета и ежедневного пользования.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Cinzel:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" media="print" onload="this.media='all'">
+  <noscript><link href="https://fonts.googleapis.com/css2?family=Creepster&family=Cinzel:wght@600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet"></noscript>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css', v=static_v) }}">
+  <style>html,body{background:#070a14;color:#ffe9d2;margin:0}</style>
+</head>
+<body class="halloween {% block body_class %}{% endblock %}">
+  <div class="bg-glow" aria-hidden="true"><span class="orb orb-1"></span><span class="orb orb-2"></span><span class="orb orb-3"></span></div>
+  <div class="leaves" aria-hidden="true">
+    <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+  </div>
+  <div class="pumpkins" aria-hidden="true">
+    <img class="pumpkin-img p-big" src="{{ url_for('static', filename='img/pumpkin.png', v=static_v) }}" alt="">
+    <img class="pumpkin-img p-small" src="{{ url_for('static', filename='img/pumpkin.png', v=static_v) }}" alt="">
+  </div>
+
+  <header class="nav">
+    <div class="nav-inner">
+      <a class="logo logo-wide" href="{{ url_for('index') }}">
+        <img class="logo-mark" src="{{ url_for('static', filename='img/logo.png') }}" alt="PushkaVPN">
+        <span class="logo-text">Pushka<em>VPN</em></span>
+      </a>
+
+      {% if current_user %}
+      <nav class="cab-nav" id="nav-links">
+        <a class="{% if request.endpoint == 'dashboard' %}active{% endif %}" href="{{ url_for('dashboard') }}">Главная</a>
+        <a class="{% if request.endpoint == 'dashboard_devices' %}active{% endif %}" href="{{ url_for('dashboard_devices') }}">Устройства</a>
+        <a class="{% if request.endpoint == 'dashboard_balance' %}active{% endif %}" href="{{ url_for('dashboard_balance') }}">Баланс</a>
+        <a class="{% if request.endpoint == 'dashboard_profile' %}active{% endif %}" href="{{ url_for('dashboard_profile') }}">Профиль</a>
+        <a href="{{ support_url }}" target="_blank" rel="noopener">Поддержка</a>
+      </nav>
+      {% endif %}
+
+      <div class="nav-cta">
+        {% if current_user %}
+          <a class="btn btn-glass btn-sm" href="{{ url_for('logout') }}">Выйти</a>
+        {% else %}
+          <a class="btn btn-ghost btn-sm" href="{{ url_for('login') }}">Войти</a>
+          <a class="btn btn-gradient btn-sm" href="{{ url_for('register') }}">Регистрация</a>
+        {% endif %}
+        {% if current_user %}
+        <button class="burger" id="burger" aria-label="Меню">☰</button>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <img class="logo-mark" src="{{ url_for('static', filename='img/logo.png') }}" alt="PushkaVPN">
+        <span>Pushka<em>VPN</em></span>
+        <p>Лучший VPN для быстрого интернета и ежедневного пользования.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Сервис</h4>
+        <a href="{{ url_for('index') }}">Главная</a>
+        <a href="{{ url_for('dashboard') }}">Личный кабинет</a>
+        <a href="{{ support_url }}" target="_blank" rel="noopener">Поддержка</a>
+      </div>
+      <div class="footer-col">
+        <h4>Документы</h4>
+        <a href="{{ url_for('rules') }}">Правила</a>
+        <a href="{{ url_for('privacy') }}">Политика конфиденциальности</a>
+        <a href="{{ url_for('terms') }}">Пользовательское соглашение</a>
+      </div>
+      <div class="footer-col">
+        <h4>Связь</h4>
+        <a href="{{ support_url }}" target="_blank" rel="noopener">Поддержка @Pushka_Sup</a>
+        <a href="https://t.me/{{ bot_username }}" target="_blank" rel="noopener">Telegram-бот</a>
+      </div>
+    </div>
+    <p class="footer-copy">Все права защищены © 2024–2026 PushkaVPN</p>
+  </footer>
+
+  <div id="modal" class="modal hidden">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal()" aria-label="Закрыть">✕</button>
+      <div id="modal-content"></div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js', v=static_v) }}"></script>
+</body>
+</html>

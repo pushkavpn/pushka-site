@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Регистрация — PushkaVPN{% endblock %}
+
+{% block content %}
+<section class="auth-wrap">
+  <div class="auth-card glass">
+    <div class="auth-head">
+      <img class="logo-mark" src="{{ url_for('static', filename='img/logo.png') }}" alt="PushkaVPN">
+      <h1>Создать аккаунт</h1>
+      <p class="muted">После регистрации откроется личный кабинет</p>
+    </div>
+
+    {% if error %}<div hidden data-toast="{{ error }}"></div>{% endif %}
+
+    <div class="social">
+      <a class="btn btn-telegram btn-block" href="{{ url_for('tg_oauth') }}">Войти через Telegram</a>
+    </div>
+
+    <div class="divider"><span>или по почте</span></div>
+
+    <form method="post" class="stack">
+      <label for="email">Email</label>
+      <input id="email" name="email" type="email"
+             value="{{ request.form.get('email', '') }}" required autofocus>
+
+      <label for="password">Пароль</label>
+      <input id="password" name="password" type="password" required>
+      <p class="field-hint">Пароль должен быть не короче 6 символов</p>
+
+      <label for="password2">Повторите пароль</label>
+      <input id="password2" name="password2" type="password" required>
+
+      <button class="btn btn-gradient btn-block" type="submit">Зарегистрироваться</button>
+
+      <p class="legal-note">
+        Регистрируясь, вы принимаете
+        <a href="{{ url_for('privacy') }}">Политику конфиденциальности</a>
+        и <a href="{{ url_for('terms') }}">Пользовательское соглашение</a>.
+      </p>
+    </form>
+
+    <p class="auth-switch">Уже есть аккаунт? <a href="{{ url_for('login') }}">Войти</a></p>
+  </div>
+</section>
+{% endblock %}

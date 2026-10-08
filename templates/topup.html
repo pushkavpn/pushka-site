@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Пополнение баланса — PushkaVPN{% endblock %}
+
+{% block content %}
+<section class="auth-wrap">
+  <div class="auth-card glass">
+    <div class="auth-head">
+      <img class="logo-mark" src="{{ url_for('static', filename='img/logo.png') }}" alt="PushkaVPN">
+      <h1>Пополнение баланса</h1>
+      <p class="muted">Текущий баланс: <b>{{ '%.2f' | format(current_user.balance) }} ₽</b></p>
+    </div>
+
+    <div class="topup-box">
+      <label for="amount">Сумма пополнения, ₽ (минимум {{ min_topup }})</label>
+      <input id="amount" type="number" min="{{ min_topup }}" step="10" value="{{ amount }}">
+
+      <p class="muted small">Оплата через Platega — карта или СБП. Минимум {{ min_topup }} ₽.</p>
+
+      <button class="btn btn-gradient btn-block" id="topup">Пополнить</button>
+
+      <p class="legal-note">
+        Оплачивая, вы принимаете
+        <a href="{{ url_for('privacy') }}">Политику конфиденциальности</a>
+        и <a href="{{ url_for('terms') }}">Пользовательское соглашение</a>.
+      </p>
+    </div>
+
+    <p class="auth-switch"><a href="{{ url_for('dashboard') }}">← Вернуться в кабинет</a></p>
+  </div>
+</section>
+{% endblock %}
